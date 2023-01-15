@@ -2,6 +2,8 @@ const uuid = require('uuid')
 const path = require('path')
 const { Device, DeviceInfo } = require('../models/models.js')
 const ApiError = require('../error/ApiError')
+const fs = require('fs');
+
 
 class DeviceController {
     async createDevice(req, res, next) {
@@ -53,7 +55,6 @@ class DeviceController {
                                 description: i.description,
                                 deviceId: id
                             })
-                            // console.log(aInfo)
                         }
                     })
 
@@ -102,10 +103,13 @@ class DeviceController {
             next(ApiError.badRequest(err.message))
         }
     }
-    async deleteDevice(req, res) {
+    async deleteDevice(req, res, next) {
         try {
             const { id } = req.params
-            const device = await Device.destroy({ where: { id } })
+            const device = await Device.findOne({ where: { id } })
+            await Device.destroy({ where: { id } })
+            const fileName = device.img
+            fs.unlinkSync(path.resolve(__dirname, '..', 'static', fileName))
             return res.json(id)
         } catch (err) {
             console.log(err)
@@ -122,6 +126,14 @@ class DeviceController {
             next(ApiError.badRequest(err.message))
         }
     }
+    // async createBasket(req, res) {
+    //     try {
+    //         const 
+    //     } catch (err) {
+    //         console.log(err)
+    //         next(ApiError.badRequest(err.message))
+    //     }
+    // }
 }
 
 
